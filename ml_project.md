@@ -241,9 +241,6 @@ and comparing the results with the actual activity quality outcome, yields:
 * training set prediction accuracy: **56.01%**
 * test set prediction accuracy: **56.60%**
 
-As expected, applying the tree model to a new test set results in a
-lower accuracy than what was achieved on the training set.
-
 **57%** accuracy isn't much better than chance, 
 so let's try a more sophisticated model.
 
@@ -275,10 +272,10 @@ optimal solution.
 ## 
 ## Resampling results across tuning parameters:
 ## 
-##   mtry  Accuracy   Kappa      Accuracy SD  Kappa SD   
-##    2    0.9374497  0.9207976  0.007804037  0.009795485
-##   28    0.9502185  0.9369868  0.008192579  0.010330957
-##   54    0.9459012  0.9315341  0.009279407  0.011612844
+##   mtry  Accuracy   Kappa      Accuracy SD  Kappa SD  
+##    2    0.9333335  0.9156118  0.009572021  0.01209635
+##   28    0.9507401  0.9376595  0.008830032  0.01116250
+##   54    0.9439861  0.9291123  0.009112155  0.01155805
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 28.
@@ -286,27 +283,18 @@ optimal solution.
 
 ### Random Forest Accuracy / Predictions
 
-Estimated accuracy is **95.02%**
+Estimated accuracy is **95.07%**
 
 
 ```r
   rf.train.acc <- perc(predict(pml.rf, newdata=pml.train), pml.train$classe)
-```
-
-```
-## Loading required package: randomForest
-## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.
-```
-
-```r
   rf.test.acc <- perc(predict(pml.rf, newdata=pml.test), pml.test$classe)
 ```
 
 Applying the random forest predictions on the training and test data sets
 and comparing the results with the actual activity quality outcomes yields:
-* training set prediction accuracy: **97.05%**
-* testing set prediction accuracy: **96.92%**
+* training set prediction accuracy: **100.00%**
+* testing set prediction accuracy: **96.94%**
 
 ### Out of Sample Error and Cross Validation
 
@@ -326,33 +314,33 @@ gives us an estimate of the sample error and a confidence interval.
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 5002   16    0    4    0
-##          B   88 3222   92   12    3
-##          C    0   65 2993   21    0
-##          D    7    4  129 2732   22
-##          E    0   34   15   32 3165
+##          A 4981   25    0    1   15
+##          B   52 3262  103    0    0
+##          C    0  100 2960   19    0
+##          D    1    3   89 2791   10
+##          E    0   23   46   54 3123
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.9692          
-##                  95% CI : (0.9665, 0.9717)
-##     No Information Rate : 0.2887          
+##                Accuracy : 0.9694          
+##                  95% CI : (0.9667, 0.9719)
+##     No Information Rate : 0.2851          
 ##     P-Value [Acc > NIR] : < 2.2e-16       
 ##                                           
-##                   Kappa : 0.961           
+##                   Kappa : 0.9612          
 ##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9814   0.9644   0.9269   0.9754   0.9922
-## Specificity            0.9984   0.9864   0.9940   0.9891   0.9944
-## Pos Pred Value         0.9960   0.9429   0.9721   0.9440   0.9750
-## Neg Pred Value         0.9925   0.9916   0.9838   0.9953   0.9983
-## Prevalence             0.2887   0.1892   0.1829   0.1586   0.1807
-## Detection Rate         0.2833   0.1825   0.1695   0.1547   0.1792
+## Sensitivity            0.9895   0.9558   0.9256   0.9742   0.9921
+## Specificity            0.9968   0.9891   0.9918   0.9930   0.9915
+## Pos Pred Value         0.9918   0.9546   0.9614   0.9644   0.9621
+## Neg Pred Value         0.9958   0.9894   0.9837   0.9950   0.9983
+## Prevalence             0.2851   0.1933   0.1811   0.1622   0.1783
+## Detection Rate         0.2821   0.1847   0.1676   0.1581   0.1769
 ## Detection Prevalence   0.2844   0.1935   0.1744   0.1639   0.1838
-## Balanced Accuracy      0.9899   0.9754   0.9605   0.9822   0.9933
+## Balanced Accuracy      0.9931   0.9724   0.9587   0.9836   0.9918
 ```
 
 
@@ -370,20 +358,20 @@ gives us an estimate of the sample error and a confidence interval.
 ##                      Number of trees: 500
 ## No. of variables tried at each split: 28
 ## 
-##         OOB estimate of  error rate: 3.41%
+##         OOB estimate of  error rate: 3.11%
 ## Confusion matrix:
 ##     A   B   C   D   E class.error
-## A 556   1   1   0   0 0.003584229
-## B  16 351   7   2   4 0.076315789
-## C   0  15 325   2   1 0.052478134
-## D   1   3   5 313   0 0.027950311
-## E   0   2   1   6 352 0.024930748
+## A 555   1   1   0   1 0.005376344
+## B  12 356   9   1   2 0.063157895
+## C   0  12 330   1   0 0.037900875
+## D   0   2   7 310   3 0.037267081
+## E   0   3   1   5 352 0.024930748
 ```
 
-* The estimated accuracy of the random forest prediction model is
-**96.92%**.
+* The accuracy of the random forest prediction model on the test set was
+**96.94%**.
 
-* The 95% confidence interval is **96.65%** to **97.17%**
+* The 95% confidence interval is **96.67%** to **97.19%**
 
 * The estimated out of sample error rate is **~3.41%**
 
@@ -397,8 +385,16 @@ Data was partitioned into training and test data sets and
 two algorithms, trees and random forest, compared in their 
 efficacy for prediction of activity quality.
 
+On the test data set
 * The tree model achieved **56.60%** accuracy
-* The random forest model achieved **96.92%** accuracy.
+* The random forest fared much better achieving **96.94%** accuracy
+
+The random forest model generated has a 95% confidence interval of
+**96.67%** to **97.19%** and estimated out of sample error
+rate of **~3.41%**
+
+Applied to the final 'hidden' test data set, the random forest model
+successfully predicted 19 of 20 activity outcomes.
 
 
 

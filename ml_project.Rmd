@@ -164,9 +164,6 @@ and comparing the results with the actual activity quality outcome, yields:
 * training set prediction accuracy: **`r sprintf("%.2f", t.train.acc)`%**
 * test set prediction accuracy: **`r sprintf("%.2f", t.test.acc)`%**
 
-As expected, applying the tree model to a new test set results in a
-lower accuracy than what was achieved on the training set.
-
 **`r sprintf("%.0f", t.test.acc)`%** accuracy isn't much better than chance, 
 so let's try a more sophisticated model.
 
@@ -178,7 +175,7 @@ so let's try a more sophisticated model.
 Random forests use bootstrapping and many multiple tree generations to find an
 optimal solution.
 
-```{r rf.model, cache=TRUE, message=FALSE}
+```{r rf.model, cache=TRUE, message=FALSE, warning=FALSE}
   pml.rf <- train(classe ~., data = pml.train, method = "rf");
   pml.rf
 ```
@@ -187,7 +184,7 @@ optimal solution.
 
 Estimated accuracy is **`r sprintf("%.2f", max(pml.rf$results[, 2])*100)`%**
 
-```{r rf.predictions}
+```{r rf.predictions, message=FALSE, warning=FALSE}
   rf.train.acc <- perc(predict(pml.rf, newdata=pml.train), pml.train$classe)
   rf.test.acc <- perc(predict(pml.rf, newdata=pml.test), pml.test$classe)
 ```
@@ -219,7 +216,7 @@ gives us an estimate of the sample error and a confidence interval.
   pml.rf$finalModel
 ```
 
-* The estimated accuracy of the random forest prediction model is
+* The accuracy of the random forest prediction model on the test set was
 **`r rfacc`%**.
 
 * The 95% confidence interval is **`r rflow`%** to **`r rfhigh`%**
@@ -236,8 +233,16 @@ Data was partitioned into training and test data sets and
 two algorithms, trees and random forest, compared in their 
 efficacy for prediction of activity quality.
 
+On the test data set
 * The tree model achieved **`r sprintf("%.2f", t.test.acc)`%** accuracy
-* The random forest model achieved **`r rfacc`%** accuracy.
+* The random forest fared much better achieving **`r rfacc`%** accuracy
+
+The random forest model generated has a 95% confidence interval of
+**`r rflow`%** to **`r rfhigh`%** and estimated out of sample error
+rate of **~3.41%**
+
+Applied to the final 'hidden' test data set, the random forest model
+successfully predicted 19 of 20 activity outcomes.
 
 
 ```{r write_predictions, echo=FALSE}
