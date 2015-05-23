@@ -1,0 +1,258 @@
+---
+title: "Coursera, Practical Machine Learning, Course Project"
+author: patrick charles  
+output:  
+    html_document:
+        keep_md: true
+---
+
+# Practical Machine Learning - Activity Type Analysis
+
+
+## Summary
+
+This project uses human activity sensor data 
+to test the predictive capabilities of various machine learning
+algorithms.
+
+In particular, trees and random forests are used to build predictive models
+using training data sets. Those models are then applied to test data sets
+to see how effective they are at determining activity quality as an outcome.
+
+More information about the data set can be found at:
+[Human Activity Recognition](http://groupware.les.inf.puc-rio.br/har)
+
+
+## Prerequisites
+
+The caret machine learning package is used for machine learning,
+along with the rpart package for tree models. ggplot2 and rattle are
+used for visualization.
+```{r prereqs, message=FALSE, warning=FALSE}
+  if(!require(caret)) install.packages("caret", dep=T)
+  if(!require(rpart)) install.packages("rpart", dep=T)
+  if(!require(rattle)) install.packages("rattle", dep=T)
+  if(!require(ggplot2)) install.packages("ggplot2", dep=T)
+```
+
+
+## Data
+
+```{r load_training, cache=TRUE}
+  missingValues = c("NA","#DIV/0!", "") # recode missing values as type NA
+  download.file(url="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", destfile="data/pml-training.csv", method="curl")
+  pml.train.in <- read.csv("data/pml-training.csv", na.strings=missingValues)
+```
+
+```{r load_testing, cache=TRUE}
+  download.file(url="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", destfile="data/pml-testing.csv", method="curl")
+  pml.test.final <- read.csv("data/pml-testing.csv", na.strings=missingValues)
+```
+
+
+## Transformation
+
+Columns which aren't relevant to the activity type, or contain NA values,
+are removed from the training data set.
+
+```{r transform}
+  set.seed(2482)
+  # remove columns containing only NA data
+  removeTrain <- colSums(is.na(pml.train.in)) < nrow(pml.train.in)
+  pml.train.clean <- pml.train.in[,removeTrain]
+  removeTest <- colSums(is.na(pml.test.final)) < nrow(pml.test.final)
+  pml.train.clean <- pml.train.in[,removeTest]
+  # remove time stamps and other non-activity data
+  pml.train.clean <- pml.train.clean[,-(1:5)]
+```
+
+The following variables remain after filtering out NA columns and
+non-activity data.
+```{r cleaned}
+  names(pml.train.clean)
+```
+
+'classe' (a measure of the quality of the activity) is the outcome
+being predicted.
+
+
+## Data Partitioning
+
+The provided 'test' data set is further broken into two sets,
+for training and model testing purposes, while the provided
+final test data is set aside.
+
+```{r segmentation}
+  # separate training set into training and test subsets
+  inTrain <-
+    createDataPartition(y=pml.train.clean$classe, p=0.1, list=FALSE)
+  pml.train <- pml.train.clean[inTrain, ]
+  pml.test <- pml.train.clean[-inTrain, ]
+```
+
+The dimensions of the data sets after partitioning:
+```{r dimensions}
+  # The dimensions of the sets:
+  dim(pml.train) # training
+  dim(pml.test) # testing
+  dim(pml.test.final) # 'hidden' or final test set
+```
+
+
+## Exploratory Analysis
+
+Some visualization of the data is performed to see the complexity of
+the data and the relationship between some selected variables
+(e.g. the pitch and yaw of the subject's forearm), compared to the
+activity class outcome groupings.
+
+```{r analysis.exploratory}
+
+  ggplot(pml.train) + aes(x=pitch_forearm, y=yaw_forearm, color=classe) +
+    xlab("Forearm Pitch") + ylab("Forearm Yaw") +
+    geom_point(shape=19, size=2, alpha=0.3, aes(color=classe)) +
+    ggtitle("Forearm Pitch and Yaw vs. Outcome")
+```
+
+
+## Machine Learning/Prediction - Tree Model
+
+A tree model of type 'rpart' (recursive partitioning and regression tree)
+is built using activity quality 'classe' as an outcome and all other
+variables as predictors.
+
+### Training
+
+```{r tree.model, warning=FALSE, error=FALSE, cache=TRUE}
+  pml.tree <- train(classe ~ ., method="rpart", data=pml.train)
+```  
+
+### Classification/Visualization
+
+The structure of the classification tree and criteria can be visualized:
+```{r tree.visualize}
+  fancyRpartPlot(pml.tree$finalModel)
+```
+
+### Tree Model Accuracy / Predictions
+
+The tree prediction model contains a summary of parameters and estimates of
+accuracy.
+
+```{r tree.accuracy}
+  pml.tree
+```
+
+The estimated accuracy is **`r sprintf("%.2f", max(pml.tree$results[2]) * 100)`%**
+
+Let's see how that compares to actual accuracy on the training and test
+sets. Activity quality outcomes can be predicted using the tree model and
+compared with the actual classe variables in the training and test sets.
+
+```{r tree.predictions}
+
+  # percentage accuracy 
+  perc = function(predicted, actual) {
+    sum(predicted == actual) / length(actual) * 100
+  }
+  t.train.acc <- perc(predict(pml.tree, newdata=pml.train), pml.train$classe)
+  t.test.acc <- perc(predict(pml.tree, newdata=pml.test), pml.test$classe)
+```
+
+Applying the tree model predictions on the training and test data sets,
+and comparing the results with the actual activity quality outcome, yields:
+* training set prediction accuracy: **`r sprintf("%.2f", t.train.acc)`%**
+* test set prediction accuracy: **`r sprintf("%.2f", t.test.acc)`%**
+
+As expected, applying the tree model to a new test set results in a
+lower accuracy than what was achieved on the training set.
+
+**`r sprintf("%.0f", t.test.acc)`%** accuracy isn't much better than chance, 
+so let's try a more sophisticated model.
+
+
+## Machine Learning/Prediction - Random Forest
+
+### Model
+
+Random forests use bootstrapping and many multiple tree generations to find an
+optimal solution.
+
+```{r rf.model, cache=TRUE, message=FALSE}
+  pml.rf <- train(classe ~., data = pml.train, method = "rf");
+  pml.rf
+```
+
+### Random Forest Accuracy / Predictions
+
+Estimated accuracy is **`r sprintf("%.2f", max(pml.rf$results[, 2])*100)`%**
+
+```{r rf.predictions}
+  rf.train.acc <- perc(predict(pml.rf, newdata=pml.train), pml.train$classe)
+  rf.test.acc <- perc(predict(pml.rf, newdata=pml.test), pml.test$classe)
+```
+
+Applying the random forest predictions on the training and test data sets
+and comparing the results with the actual activity quality outcomes yields:
+* training set prediction accuracy: **`r sprintf("%.2f", rf.train.acc)`%**
+* testing set prediction accuracy: **`r sprintf("%.2f", rf.test.acc)`%**
+
+### Out of Sample Error and Cross Validation
+
+Summary statistics for performance of the model on the test data
+set, which was not used in the training of the random forest,
+gives us an estimate of the sample error and a confidence interval.
+
+```{r rf.summary}
+  pml.rf.test.predictions <- predict(pml.rf, pml.test)
+  rfcm <- confusionMatrix(pml.test$classe, pml.rf.test.predictions)
+  rfcm
+```
+
+```{r rf.details, echo=FALSE}
+  rfacc <- sprintf("%.2f", rfcm$overall[[1]] * 100)
+  rflow <- sprintf("%.2f", rfcm$overall[[3]] * 100)
+  rfhigh <- sprintf("%.2f", rfcm$overall[[4]] * 100)
+```
+
+```{r rf.error_rate}
+  pml.rf$finalModel
+```
+
+* The estimated accuracy of the random forest prediction model is
+**`r rfacc`%**.
+
+* The 95% confidence interval is **`r rflow`%** to **`r rfhigh`%**
+
+* The estimated out of sample error rate is **~3.41%**
+
+
+## Conclusion
+
+Two machine learning algorithms were applied to predict activity 
+quality outcomes from human activity sensor data.
+
+Data was partitioned into training and test data sets and 
+two algorithms, trees and random forest, compared in their 
+efficacy for prediction of activity quality.
+
+* The tree model achieved **`r sprintf("%.2f", t.test.acc)`%** accuracy
+* The random forest model achieved **`r rfacc`%** accuracy.
+
+
+```{r write_predictions, echo=FALSE}
+  pml_write_files = function(x) {
+    n = length(x)
+    for(i in 1:n) {
+      filename = paste0("problem_id_",i,".txt")
+      write.table(x[i], file=filename, quote=FALSE,
+                  row.names=FALSE, col.names=FALSE)
+    }
+  }
+
+  ## apply the random forest algorithm to the final data set for submission
+
+  answers <- as.character(predict(pml.rf, pml.test.final))
+  pml_write_files(answers)
+```
+

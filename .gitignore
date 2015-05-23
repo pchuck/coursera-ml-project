@@ -1,0 +1,8 @@
+cache/
+data/
+problem_id_*.txt
+
+# generated files 
+#figure/
+#*.md
+#*.html
