@@ -10,6 +10,15 @@ create_env:
 render:
 	./R/rmdToHtml.R ml_project
 
+gh-pages_create:
+	git branch gh-pages
+	git checkout gh-pages
+	git push origin gh-pages
+	touch .nojekyll
+	git add .nojekyll
+	git commit -a -m "added a .nojekyll file"
+	git push origin gh-pages
+
 # remove generated files
 clean:
 	rm -f $(SRC).csv
