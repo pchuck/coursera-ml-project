@@ -6,7 +6,10 @@ output:
         keep_md: true
 ---
 
-# Practical Machine Learning - Activity Type Analysis
+# Machine Learning - Activity Type Analysis
+- Course: Practical Machine Learning (predmachlearn)
+- Project: Course Project
+- Author: Patrick Charles
 
 
 ## Summary
@@ -406,6 +409,6 @@ The full analysis can be reproduced/generated using the following make target:
 make render
 ```
 
-The analysis can be viewed at:
+The output of the analysis can be viewed at:
   * [github/pchuck/coursera-ml-project/ml_project.md](https://github.com/pchuck/coursera-ml-project/blob/master/ml_project.md) (in markdown)
   * [pchuck.github.io/coursera-ml-project/ml_project.html](http://pchuck.github.io/coursera-ml-project/ml_project.html) (in html)

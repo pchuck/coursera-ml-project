@@ -6,7 +6,10 @@ output:
         keep_md: true
 ---
 
-# Practical Machine Learning - Activity Type Analysis
+# Machine Learning - Activity Type Analysis
+- Course: Practical Machine Learning (predmachlearn)
+- Project: Course Project
+- Author: Patrick Charles
 
 
 ## Summary
