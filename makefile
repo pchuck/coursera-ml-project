@@ -1,6 +1,6 @@
-# Coursera, Regression Models, Final Project
+# Coursera, Machine Learning, Final Project
 #
-# exploratory analysis of the mtcars data set
+# activity type analysis
 #
 
 # tmuxinator an R dev environment
