@@ -25,3 +25,8 @@ clean:
 	rm -f *.html *.md
 	rm -rf figure/
 
+
+## differences between master and gh-pages branches:
+
+# master - .gitignore contains *.html
+# gh-pages - includes: ml_project.html, .nojekyll
