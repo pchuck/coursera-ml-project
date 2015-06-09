@@ -19,9 +19,6 @@ gh-pages_create:
 	git commit -a -m "added a .nojekyll file"
 	git push origin gh-pages
 
-
-
-
 # remove generated files
 clean:
 	rm -f $(SRC).csv
