@@ -2,7 +2,8 @@ cache/
 data/
 problem_id_*.txt
 
-# generated files 
+# generated files
+*.html
 #figure/
 #*.md
-#*.html
+
