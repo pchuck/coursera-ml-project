@@ -11,15 +11,15 @@ output:
 
 ## Summary
 
-This project uses human activity sensor data 
-to test the predictive capabilities of various machine learning
-algorithms.
+This [machine learning project](http://github.com/pchuck/coursera-ml-project/)
+uses human activity sensor data to test the predictive capabilities of various
+machine learning algorithms.
 
 In particular, trees and random forests are used to build predictive models
 using training data sets. Those models are then applied to test data sets
 to see how effective they are at determining activity quality as an outcome.
 
-More information about the data set can be found at:
+The dataset being analyzed is provided by:
 [Human Activity Recognition](http://groupware.les.inf.puc-rio.br/har)
 
 
@@ -241,7 +241,7 @@ and comparing the results with the actual activity quality outcome, yields:
 * training set prediction accuracy: **56.01%**
 * test set prediction accuracy: **56.60%**
 
-**57%** accuracy isn't much better than chance, 
+**57%** accuracy isn't great, 
 so let's try a more sophisticated model.
 
 
@@ -399,3 +399,13 @@ successfully predicted 19 of 20 activity outcomes.
 
 
 
+## Notes
+
+The full analysis can be reproduced/generated using the following make target:
+```
+make render
+```
+
+The analysis can be viewed at:
+  * [github/pchuck/coursera-ml-project/ml_project.md](https://github.com/pchuck/coursera-ml-project/blob/master/ml_project.md) (in markdown)
+  * [pchuck.github.io/coursera-ml-project/ml_project.html](http://pchuck.github.io/coursera-ml-project/ml_project.html) (in html)
